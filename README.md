@@ -8,3 +8,5 @@ As of now its predictions are limited to:
   (predict "digits/" "siffrorsvåra", "whitetill", "svartsif", or "svartsif.jpg" for demo).
   images such as screenshots of jpg may have distinct borders as PNG, 
   and may be predicted incorrectly (predict "digits/pngsif" for demo).
+  
+  To install dependencies, download the project and in terminal run "pip install -r (path here, for example:  /Users/yourname/Downloads/projectname/ALnet-0.5/requirements.txt)"
