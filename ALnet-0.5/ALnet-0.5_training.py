@@ -32,7 +32,7 @@ def alnet():
 	# we do this to ensure no overfitting is present,
 	# y are labels to X which is the images
 
-	(X_train, y_train), (X_test, y_test) = mnist.load_data
+	(X_train, y_train), (X_test, y_test) = mnist.load_data()
 
 	# reshaping for keras compatibility
 	X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
