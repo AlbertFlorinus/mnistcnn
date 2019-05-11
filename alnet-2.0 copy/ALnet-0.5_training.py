@@ -1,0 +1,178 @@
+import os
+from scipy.ndimage import rotate
+import numpy as np
+import keras
+from keras.datasets import mnist
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.optimizers import Adam, Adadelta
+from keras.losses import categorical_crossentropy
+from keras.layers.normalization import BatchNormalization
+from keras.utils import np_utils
+from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, GlobalAveragePooling2D
+from keras.layers.advanced_activations import LeakyReLU 
+from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing import image
+from keras.callbacks import LearningRateScheduler
+import cv2
+
+# This is the script used for designing and training ALnet-0.5
+
+def alnet():
+
+	"""
+	Training results:
+	val_loss: 0.0157 - val_acc: 0.9950
+	Test loss:  0.01574255358175287
+	Test accuracy:  0.995
+	[Finished in 2489.3s]
+	"""
+	
+	# gathering the mnist-dataset, train is used for training,
+	# test is used to predict images previously unseen,
+	# we do this to ensure no overfitting is present,
+	# y are labels to X which is the images
+
+	#(X_train, y_train), (X_test, y_test) = mnist.load_data()
+
+	(X_traine, y_train), (X_teste, y_test) = mnist.load_data()
+
+	X_train = np.empty((60000,112,112))
+	X_test = np.empty((10000,112,112))
+	for i in range(60000):
+		imgs = X_traine[i]
+		enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
+		X_train[i,:,:] = enlargeder
+
+	for i in range(10000):
+		imgs = X_teste[i]
+		enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
+		X_test[i,:,:] = enlargeder
+
+	X_train = X_train.reshape(X_train.shape[0], 112, 112, 1)
+	X_test = X_test.reshape(X_test.shape[0], 112, 112, 1)
+
+	# reshaping for keras compatibility
+	#X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
+	#X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
+
+	#np.pad(X_train, ((0,0),(14,14),(14,14),(0,0)), "constant")
+
+	# changing datatype from uint8 to float32,
+	# this is to allow for normalizising the pixel value,
+	# between 0 and 1
+	X_train = X_train.astype('float32')
+	X_test = X_test.astype('float32')
+
+	# normalizing pixels
+	X_train/=255
+	X_test/=255
+
+	# one-hot-encoding the outputs, or in simpler terms,
+	# storing the outputs as a vector of 1x10
+	number_of_classes = 10
+	Y_train = np_utils.to_categorical(y_train, number_of_classes)
+	Y_test = np_utils.to_categorical(y_test, number_of_classes)
+
+	# Three steps to create a CNN
+	# 1. Convolution
+	# 2. Activation
+	# 3. Pooling
+	# Repeat Steps 1,2,3 for adding more hidden layers
+
+	# 4. After that make a fully connected network
+	# This fully connected network gives ability to the CNN
+	# to classify the samples
+
+	# creating a sequential model in keras, linear stack of layers
+	# code below is the ALnet-0.5 model design
+	model = Sequential()
+
+	# each convolutional/conv layer distorts the input arrays
+	# each model.add creates a new layer in the nn
+	# adding a spatial convolutional/conv layer and 
+	# declaring input shape required for the img array
+	# input shape value only needed for first conv
+	# 32 for the amount of filters and thus also feature maps outputed,
+	# (3,3) for filter size, default stride is 1
+
+	model.add(Conv2D(16, (20,20), strides = 2, activation="relu", input_shape=(112,112,1), padding="same"))
+	model.add(Conv2D(16, (10,10), strides = 2, activation="relu", padding="same"))
+
+	model.add(Conv2D(32, (3,3), activation="relu"))
+	# adding a batchnormalization layer to reduce a batchs covariant shift,
+	# normalizing the images to execute more effectively,
+	model.add(BatchNormalization())
+
+	model.add(Conv2D(32, (3,3), activation="relu"))
+	model.add(BatchNormalization())
+
+	# adding conv layer with 5x5 filter and a stride of 2 instead of max pooling,
+	# downsampling image but retaining import data for classification.
+	model.add(Conv2D(32, (5,5), strides=2, padding="same",activation="relu"))
+	model.add(BatchNormalization())
+
+	# using dropout with a rate 0f 0.4, this randomly "drops",
+	# 40% of the nodes to a output value of 0 each iteration, which helps prevent overfitting
+	model.add(Dropout(0.4))
+
+	# raise amount from 32 to 64
+	model.add(Conv2D(64, (3,3), activation="relu"))
+	model.add(BatchNormalization())
+	model.add(Conv2D(64, (3,3), activation="relu"))
+	model.add(BatchNormalization())
+
+
+	model.add(Conv2D(64, (5,5), strides=2, padding="same", activation="relu"))
+	model.add(BatchNormalization())
+	model.add(Dropout(0.4))
+
+	# flattening the input to a 1d array,
+	# flattening the pixel data of 64 4x4 arrays
+	# to a 1d array containing 1024 pixel values,
+	# not 1024 pixels of the original image but of the,
+	# outputs from the convolutional neural network
+	# this ends the spatial/convolutional part of the network
+	model.add(Flatten())
+
+	# adding a fully connected layer of 128 neurons
+	model.add(Dense(128, activation="relu"))
+	model.add(BatchNormalization())
+	model.add(Dropout(0.4))
+
+	# Final layer of 10 neurons with a softmax activation,
+	# this outputs a prediction (number with highest activation value)
+	model.add(Dense(number_of_classes, activation="softmax"))
+
+	# Declaring loss function and optimizer,
+	# Adam is an enhancement of SGD.
+	# Accuracy metric for us to get results for evaluating the model 
+	model.compile(loss="categorical_crossentropy", optimizer=Adam(), metrics=["accuracy"])
+
+	# Number of images to iterate simultaneously before each weight update
+	batchsize = 64
+
+	# Augmentning training data for better generalisation,
+	# and prevent overfitting
+	gen = ImageDataGenerator(rotation_range=15, width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.15)
+	train_generator = gen.flow(X_train, Y_train, batch_size=batchsize)
+
+	annealer = LearningRateScheduler(lambda x: 1e-3 * 0.95 ** (x+epochs))
+
+	# Reducing learning rate to 95% of the last epoch,
+	# speeding up convergence by keeping weight updates smaller as the model,
+	# approaches convergence.
+	annealer = LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
+
+	# starting training, validation_data is mnist data not trained on,
+	# to ensure us we arent overfitting to the training set but actually generalising
+	
+	model.fit_generator(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
+                    validation_data=(X_test, Y_test), callbacks=[annealer], verbose=1)
+
+	model.save("ALnet-2.0.h5")
+	score = model.evaluate(X_test, Y_test, verbose=1)
+	print("Test loss: ", score[0])
+	print("Test accuracy: ", score[1])
+
+alnet()
