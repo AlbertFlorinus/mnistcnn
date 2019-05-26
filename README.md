@@ -9,6 +9,7 @@ As of now its predictions are limited to:
   images such as screenshots of jpg may have distinct borders as PNG, 
   and may be predicted incorrectly (predict "digits/pngsif" for demo).
   
-  To install dependencies, download the project and in terminal run "pip install -r (path here, for example:  /Users/yourname/Downloads/projectname/ALnet-0.5/requirements.txt)"
+  To install dependencies, download the project and in terminal run pip install -r path, for example:  
+  user $ pip install -r /Users/yourname/Downloads/projectname/ALnet-2.0/requirements.txt
 
 THIS IS WIP BRANCH
