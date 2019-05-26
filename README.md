@@ -9,7 +9,10 @@ As of now its predictions are limited to:
   images such as screenshots of jpg may have distinct borders as PNG, 
   and may be predicted incorrectly (predict "digits/pngsif" for demo).
   
+  
+UPDATE! Alnet-2.0 is soon to be done
+
   To install dependencies, download the project and in terminal run pip install -r path, for example:  
   user $ pip install -r /Users/yourname/Downloads/projectname/requirements.txt
 
-THIS IS WIP BRANCH
+Work In Progress...
