@@ -10,6 +10,6 @@ As of now its predictions are limited to:
   and may be predicted incorrectly (predict "digits/pngsif" for demo).
   
   To install dependencies, download the project and in terminal run pip install -r path, for example:  
-  user $ pip install -r /Users/yourname/Downloads/projectname/ALnet-2.0/requirements.txt
+  user $ pip install -r /Users/yourname/Downloads/projectname/requirements.txt
 
 THIS IS WIP BRANCH
