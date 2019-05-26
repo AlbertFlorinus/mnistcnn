@@ -1,7 +1,7 @@
 # mnistcnn
 handwritten digit classifier using with a convolutional neural network in keras.
 
-ALnet-0.5 is in development for 1.0.
+ALnet-0.5 is in development for 2.0.
 As of now its predictions are limited to:
   whiteboard images drawn in black (predict "digits/RGBsiffror" for demo).
   Digit needs to be "compact", otherwise the lines disappear during preprocessing,
