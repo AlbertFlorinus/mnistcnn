@@ -16,4 +16,6 @@ As of now the the mnist images have been upscaled to 112x112 before training so 
   To install dependencies, download the project and in terminal run pip3 install -r path to requirements.txt, for example:  
   user $ pip3 install -r /Users/username/Downloads/mnistcnn-master/requirements.txt
 
+IMPORTANT! Currently issues with windows compatibility.
+
 Work In Progress...
