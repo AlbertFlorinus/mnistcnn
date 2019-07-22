@@ -155,18 +155,18 @@ def alnet():
 	gen = ImageDataGenerator(rotation_range=15, width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.15)
 	train_generator = gen.flow(X_train, Y_train, batch_size=batchsize)
 
-	annealer = LearningRateScheduler(lambda x: 1e-3 * 0.95 ** (x+epochs))
-
 	# Reducing learning rate to 95% of the last epoch,
 	# speeding up convergence by keeping weight updates smaller as the model,
 	# approaches convergence.
 	annealer = LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
 
+	# Log file for tracking information about the learning process and its metrics
+	csv_logger = CSVLogger("training_test.log", append=True, separator=";")
+	
 	# starting training, validation_data is mnist data not trained on,
 	# to ensure us we arent overfitting to the training set but actually generalising
-	
 	model.fit_generator(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
-                    validation_data=(X_test, Y_test), callbacks=[annealer], verbose=1)
+                    validation_data=(X_test, Y_test), callbacks=[annealer, csv_logger], verbose=1)
 
 	model.save("ALnet-2.0.h5")
 	score = model.evaluate(X_test, Y_test, verbose=1)
