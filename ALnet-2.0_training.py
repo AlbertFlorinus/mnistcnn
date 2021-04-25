@@ -14,7 +14,7 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.preprocessing.image import ImageDataGenerator
 from keras.preprocessing import image
 from keras.callbacks import LearningRateScheduler
-import cv2
+from cv2 import cv2
 
 # This is the script used for designing and training ALnet-2.0
 
@@ -154,8 +154,6 @@ def alnet():
 	# and prevent overfitting
 	gen = ImageDataGenerator(rotation_range=15, width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.15)
 	train_generator = gen.flow(X_train, Y_train, batch_size=batchsize)
-
-	annealer = LearningRateScheduler(lambda x: 1e-3 * 0.95 ** (x+epochs))
 
 	# Reducing learning rate to 95% of the last epoch,
 	# speeding up convergence by keeping weight updates smaller as the model,
