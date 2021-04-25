@@ -15,7 +15,7 @@ run = model_functions.Run()
 
 # To predict a single image
 # Currently a bug where you need to select the image twice
-#run.predict_chosen()
+run.predict_chosen()
 
 # run.predict_folder() is currently broken.
 
