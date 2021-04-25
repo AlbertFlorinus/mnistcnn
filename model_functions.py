@@ -215,7 +215,6 @@ class Run():
 						pass
 					else:
 						gray = cv2.imread(pather + "/%s"%fold + "/%s"%filename, 0)
-
 						dilated_gray = cv2.dilate(gray, np.ones((7,7), np.uint8))
 						bg_gray = cv2.medianBlur(dilated_gray, 21)
 						diff_gray = 255 - cv2.absdiff(gray, bg_gray)
