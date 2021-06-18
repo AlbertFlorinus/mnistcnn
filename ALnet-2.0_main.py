@@ -17,6 +17,4 @@ run = model_functions.Run()
 # Currently a bug where you need to select the image twice
 run.predict_chosen()
 
-# remove the "#" from line 21 to predict all images in the digits folder
-#run.predict_folder("digits")
 
