@@ -5,8 +5,8 @@ import numpy as np
 from keras.models import load_model
 import matplotlib.pyplot as plt
 import os
-#from cv2 import cv2
-import cv2
+from cv2 import cv2
+
 
 import math
 from scipy import ndimage
