@@ -163,7 +163,7 @@ def alnet():
 
 	# Log file for tracking information about the learning process and its metrics
 	csv_logger = CSVLogger("training_test.log", append=True, separator=";")
-	
+	#te
 	# starting training, validation_data is mnist data not trained on,
 	# to ensure us we arent overfitting to the training set but actually generalising
 	model.fit_generator(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
