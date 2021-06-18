@@ -13,10 +13,13 @@ import model_functions
 
 run = model_functions.Run()
 
+
 # To predict a single image
 # Currently a bug where you need to select the image twice
 run.predict_chosen()
 
-# remove the "#" from line 21 to predict all images in the digits folder
-#run.predict_folder("digits")
+#predict_folder predicts all images in digits and prints which where wrongly classified.
+#run.predict_folder("digits/examples")
+
+
 

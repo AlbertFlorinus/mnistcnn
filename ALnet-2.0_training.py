@@ -13,8 +13,9 @@ from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, GlobalAveragePooli
 from keras.layers.advanced_activations import LeakyReLU 
 from keras.preprocessing.image import ImageDataGenerator
 from keras.preprocessing import image
-from keras.callbacks import LearningRateScheduler
+from keras.callbacks import LearningRateScheduler, CSVLogger
 from cv2 import cv2
+
 
 # This is the script used for designing and training ALnet-2.0
 
@@ -160,11 +161,13 @@ def alnet():
 	# approaches convergence.
 	annealer = LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
 
+	# Log file for tracking information about the learning process and its metrics
+	csv_logger = CSVLogger("training_test.log", append=True, separator=";")
+	
 	# starting training, validation_data is mnist data not trained on,
 	# to ensure us we arent overfitting to the training set but actually generalising
-	
 	model.fit_generator(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
-                    validation_data=(X_test, Y_test), callbacks=[annealer], verbose=1)
+                    validation_data=(X_test, Y_test), callbacks=[annealer, csv_logger], verbose=1)
 
 	model.save("ALnet-2.0.h5")
 	score = model.evaluate(X_test, Y_test, verbose=1)
