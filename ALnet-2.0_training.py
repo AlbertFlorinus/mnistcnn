@@ -14,7 +14,8 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.preprocessing.image import ImageDataGenerator
 from keras.preprocessing import image
 from keras.callbacks import LearningRateScheduler, CSVLogger
-from cv2 import cv2
+#from cv2 import cv2
+import cv2
 
 # This is the script used for designing and training ALnet-2.0
 
