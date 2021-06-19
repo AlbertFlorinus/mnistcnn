@@ -1,5 +1,11 @@
+import os
+import numpy as np
+import keras
+from keras.layers.normalization import BatchNormalization
+from keras.preprocessing import image
+from cv2 import cv2
+
 def preprocessor(img):
-    # this resize the image to square 112x112 shape with interpolating to center the digit
     gray = img
     dilated_gray = cv2.dilate(gray, np.ones((7,7), np.uint8))
     bg_gray = cv2.medianBlur(dilated_gray, 21)
@@ -19,49 +25,3 @@ def into_alnet(img):
     img = img.astype('float32')
     img /= 255
     return img
-
-import os
-cnet_in = []
-usr_out = []
-usr_orig = []
-count = 0
-for filename in os.listdir("/content/digits/digits"):  
-    if filename.endswith((".DS_Store")):
-        pass
-    elif count < 1:
-        count += 1
-    elif count < 120:
-
-        img = cv2.imread("/content/digits/digits/" + filename, 0)
-        prep, usr_img = preprocessor(img)
-        prep = into_alnet(prep)
-        cnet_in.append(prep)
-        usr_orig.append(img)
-        usr_out.append(usr_img)
-
-        count += 1
-    
-import matplotlib.pyplot as plt
-
-model = keras.models.load_model("/content/ALnet-3.0.h5")
-
-from google.colab import drive
-drive.mount('/content/drive')
-
-!unzip /content/drive/MyDrive/digits2.zip -d /content/digits
-count = 0
-
-for i in cnet_in:
-  fig = plt.figure(figsize=(8,8))
-  plt.gray()
-  prediction = model.predict(i)
-  #print(prediction)
-  x1 = np.argmax(prediction)
-
-  fig.add_subplot(1,2,1).set_title(x1)
-  plt.imshow(usr_out[count])
-
-  fig.add_subplot(1,2,2)
-  plt.imshow(usr_orig[count])
-  #print(x1)
-  count += 1
