@@ -43,6 +43,12 @@ for filename in os.listdir("/content/digits/digits"):
     
 import matplotlib.pyplot as plt
 
+model = keras.models.load_model("/content/ALnet-3.0.h5")
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+!unzip /content/drive/MyDrive/digits2.zip -d /content/digits
 count = 0
 
 for i in cnet_in:
