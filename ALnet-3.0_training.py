@@ -34,28 +34,11 @@ def alnet():
 	# we do this to ensure overfitting has not occurred,
 	# y are labels to X which are the images
 
-	(X_traine, y_train), (X_teste, y_test) = mnist.load_data()
-
-	X_train = np.empty((60000,112,112))
-	X_test = np.empty((10000,112,112))
-	for i in range(60000):
-		imgs = X_traine[i]
-		enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
-		X_train[i,:,:] = enlargeder
-
-	for i in range(10000):
-		imgs = X_teste[i]
-		enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
-		X_test[i,:,:] = enlargeder
-
-	X_train = X_train.reshape(X_train.shape[0], 112, 112, 1)
-	X_test = X_test.reshape(X_test.shape[0], 112, 112, 1)
-
+	(X_train, Y_train), (X_test, Y_test) = mnist.load_data()
+	
 	# reshaping for keras compatibility
-	#X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
-	#X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
-
-	#np.pad(X_train, ((0,0),(14,14),(14,14),(0,0)), "constant")
+	X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
+	X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
 
 	# changing datatype from uint8 to float32,
 	# this is to allow for normalizising the pixel value,
@@ -70,8 +53,8 @@ def alnet():
 	# one-hot-encoding the outputs, or in simpler terms,
 	# storing the outputs as a vector of 1x10
 	number_of_classes = 10
-	Y_train = np_utils.to_categorical(y_train, number_of_classes)
-	Y_test = np_utils.to_categorical(y_test, number_of_classes)
+	Y_train = np_utils.to_categorical(Y_train, number_of_classes)
+	Y_test = np_utils.to_categorical(Y_test, number_of_classes)
 
 	# Three steps to create a CNN
 	# 1. Convolution
@@ -95,10 +78,8 @@ def alnet():
 	# 32 for the amount of filters and thus also feature maps outputed,
 	# (3,3) for filter size, default stride is 1
 
-	model.add(Conv2D(16, (20,20), strides = 2, activation="relu", input_shape=(112,112,1), padding="same"))
-	model.add(Conv2D(16, (10,10), strides = 2, activation="relu", padding="same"))
-
-	model.add(Conv2D(32, (3,3), activation="relu"))
+	model.add(Conv2D(32, (3,3), activation="relu", input_shape = (28,28,1), padding = "same"))
+	
 	# adding a batchnormalization layer to reduce a batchs covariant shift,
 	# normalizing the images to execute more effectively,
 	model.add(BatchNormalization())
@@ -168,10 +149,14 @@ def alnet():
 	# to ensure us we arent overfitting to the training set but actually generalising
 	model.fit_generator(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
                     validation_data=(X_test, Y_test), callbacks=[annealer, csv_logger], verbose=1)
+	history = model.fit(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
+                    validation_data=(X_test, Y_test), callbacks=[annealer, csv_logger], verbose=1)
 
-	model.save("ALnet-2.0.h5")
+
+	model.save("ALnet-3.0.h5")
 	score = model.evaluate(X_test, Y_test, verbose=1)
 	print("Test loss: ", score[0])
 	print("Test accuracy: ", score[1])
 
-alnet()
+if __name__ == "__main__":
+	alnet()
