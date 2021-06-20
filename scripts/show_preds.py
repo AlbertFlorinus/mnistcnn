@@ -5,7 +5,6 @@ from keras.layers.normalization import BatchNormalization
 from keras.preprocessing import image
 from cv2 import cv2
 
-from tkinter.filedialog import askopenfilename
 
 import matplotlib.pyplot as plt
 
@@ -64,35 +63,37 @@ def preprocessor2(img):
 
     return gray3, gray4, gray5, gray6
 
+if __name__ == "__main__":
 
-filename = askopenfilename()
-img_orig = cv2.imread(filename, 0)
-gray3, gray4, gray5, gray6 = preprocessor2(img_orig)
-"""
-fig = plt.figure(figsize=(8,8))
-plt.gray()
-plt.figure(1)
+    from tkinter.filedialog import askopenfilename
+    filename = askopenfilename()
+    img_orig = cv2.imread(filename, 0)
+    gray3, gray4, gray5, gray6 = preprocessor2(img_orig)
+    """
+    fig = plt.figure(figsize=(8,8))
+    plt.gray()
+    plt.figure(1)
 
-fig.add_subplot(1,2,1)
-plt.imshow(gray3)
+    fig.add_subplot(1,2,1)
+    plt.imshow(gray3)
 
-fig.add_subplot(1,2,2)
-plt.imshow(gray5)
-plt.show()
-#plt.imshow(gray4)
-"""
-plt.gray()
-f, axarr = plt.subplots(nrows=1,ncols=4)
-plt.sca(axarr[0]); 
-plt.imshow(gray3); plt.title('0,255,OTSU')
-plt.sca(axarr[1]); 
-plt.imshow(gray4); plt.title('128,255,OTSU')
-plt.sca(axarr[2]); 
-plt.imshow(gray5); plt.title('NONE')
-plt.sca(axarr[3]); 
-plt.imshow(gray6); plt.title('')
-plt.show()
-#plt.show()
+    fig.add_subplot(1,2,2)
+    plt.imshow(gray5)
+    plt.show()
+    #plt.imshow(gray4)
+    """
+    plt.gray()
+    f, axarr = plt.subplots(nrows=1,ncols=4)
+    plt.sca(axarr[0]); 
+    plt.imshow(gray3); plt.title('0,255,OTSU')
+    plt.sca(axarr[1]); 
+    plt.imshow(gray4); plt.title('128,255,OTSU')
+    plt.sca(axarr[2]); 
+    plt.imshow(gray5); plt.title('NONE')
+    plt.sca(axarr[3]); 
+    plt.imshow(gray6); plt.title('')
+    plt.show()
+    #plt.show()
 
 def into_alnet(img):
     img = img.reshape((1,28,28,1))
