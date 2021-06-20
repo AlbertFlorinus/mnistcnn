@@ -43,7 +43,7 @@ def preprocessor2(img):
 
     gray3 = cv2.resize(gray3, (28,28), interpolation = cv2.INTER_AREA)
 
-    ret3, gray4 = cv2.threshold(test_img2, 40, 255, cv2.THRESH_OTSU)
+    ret3, gray4 = cv2.threshold(test_img2, 40, 255, cv2.THRESH_TRUNC)
 
     gray4 = cv2.resize(gray4, (28,28), interpolation = cv2.INTER_AREA)
 
