@@ -4,11 +4,12 @@ from keras.models import load_model
 import matplotlib.pyplot as plt
 import os
 import cv2
-
+import sys
 # Creating class for the script
 class Run():
-	def __init__(self):
-		self.model = load_model("ALnet-3.0.h5")
+	def __init__(self, model):
+		self.model = model
+		#self.model = load_model("ALnet-3.0.h5")
 		"""
 		print("\nStructure of Alnet-3.0")
 		for layer in self.model.layers:
