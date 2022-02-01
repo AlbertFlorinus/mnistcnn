@@ -143,19 +143,22 @@ class Run():
 
 		# lines 181-195 displays to the user gray and gray2, values of k and j, and the estimated classname for the original image chosen
 		fig = plt.figure(figsize=(8,8))
-		columns = 2
+		columns = 3
 		rows = 1
 		plt.gray()
 		fig.add_subplot(rows, columns, 1).set_title("adaptive_Threshold\n k = {}".format(k))
 		plt.imshow(test_img)
 		fig.add_subplot(rows, columns, 2).set_title("Threshold\n j = {}".format(j))
 		plt.imshow(test_img2)
+		fig.add_subplot(rows, columns, 3).set_title("Orig img")
+		plt.imshow(weighted_data["orig_img"])
 		if k > j:
 			fig.suptitle("Image shows a {}\n k > j".format(classname))
 
 		if j > k:
 			fig.suptitle("Image shows a {}\n j > k".format(classname))
-
+		fig.add_subplot(rows, columns, 3).set_title("Orig img")
+		plt.imshow(weighted_data["orig_img"])
 		plt.show()
 
 
