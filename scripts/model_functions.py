@@ -151,3 +151,4 @@ class Run():
 			fig.suptitle("Image shows a {}\n j > k".format(classname))
 
 		plt.show()
+
