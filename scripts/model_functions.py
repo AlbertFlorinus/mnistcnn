@@ -76,7 +76,7 @@ class Run():
 		prediction_list = self.model.predict(test_img)
 		prediction2_list = self.model.predict(test_img2)
 		orig_img = cv2.imread(filename, 0)
-		result = {"orig_img": orig_img, "prediction_list": prediction_list, "prediction2_list": prediction2_list, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
+		result = {"filename": filename, "orig_img": orig_img, "prediction_list": prediction_list, "prediction2_list": prediction2_list, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
 		return result
 		#return {"prediction_list": prediction_list, "prediction2_list": prediction2_list, "test_img": test_img, "test_img2": test_img2}
 
@@ -129,6 +129,13 @@ class Run():
 									)
 		return results
 
+	def plot_simple(self, weighted_data):
+		fig = plt.figure(figsize=(8,8))
+		plt.gray()
+		plt.imshow(weighted_data["orig_img"])
+		fig.suptitle(weighted_data["classname"])
+		plt.show()
+
 	def plot_comparison(self, weighted_data):
 		# weighted data is same format as output of weighted_average()
 		test_img = weighted_data["adaptive_thresh_img"]
@@ -168,7 +175,7 @@ if __name__ == "__main__":
 	model = Run(model)
 
 	x = model.predict_folder(f"{location}/digits")
-	
-	plt.gray()
-	plt.imshow( x["2IMG_0341.JPG"]["orig_img"] )
-	plt.show()
+	model.plot_simple(x["2IMG_0341.JPG"])
+	#plt.gray()
+	#plt.imshow( x["2IMG_0341.JPG"]["orig_img"] )
+	#plt.show()
