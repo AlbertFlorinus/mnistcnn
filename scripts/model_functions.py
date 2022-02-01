@@ -17,8 +17,9 @@ class Run():
 		"""
 	
 	def predict_chosen(self, path_to_file):
-		# selecting image to predict
-		#filename = askopenfilename()
+		"""
+		
+		"""
 		filename = path_to_file
 		# reading image to grayscale
 		gray = cv2.imread(filename, 0)
@@ -74,14 +75,14 @@ class Run():
 		# prediction2_list is prediction of gray2
 		prediction_list = self.model.predict(test_img)
 		prediction2_list = self.model.predict(test_img2)
-
-		return {"prediction_list": prediction_list, "prediction2_list": prediction2_list, "test_img": test_img, "test_img2": test_img2}
+		orig_img = cv2.imread(filename, 0)
+		result = {"orig_img": orig_img, "prediction_list": prediction_list, "prediction2_list": prediction2_list, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
+		return result
+		#return {"prediction_list": prediction_list, "prediction2_list": prediction2_list, "test_img": test_img, "test_img2": test_img2}
 
 	def weighted_average(self, result):
 		prediction_list = result["prediction_list"]
 		prediction2_list = result["prediction2_list"]
-		test_img = result["test_img"]
-		test_img2 = result["test_img2"]
 
 		# x1 and x2 are indexes for elements (what digit is guessed) of highest value for images gray and gray2
 		x1 = np.argmax(prediction_list)
@@ -105,7 +106,12 @@ class Run():
 
 		if j > k:
 			classname = x2
-		return {"classname": classname, "adaptive_thresh_acc": k, "thresh_acc": j, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
+
+		result["classname"] = classname
+		result["adaptive_thresh_acc"] = k
+		result["thresh_acc"] = j
+		return result
+		#return {"classname": classname, "adaptive_thresh_acc": k, "thresh_acc": j, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
 
 	def predict_folder(self, pather, debug=False):
 		"""
@@ -152,3 +158,14 @@ class Run():
 
 		plt.show()
 
+
+if __name__ == "__main__":	
+	location = os.path.abspath("")
+	model = load_model(location+"/ALnet-3.0.h5")
+	model = Run(model)
+
+	x = model.predict_folder(f"{location}/digits")
+	
+	plt.gray()
+	plt.imshow( x["2IMG_0341.JPG"]["orig_img"] )
+	plt.show()
