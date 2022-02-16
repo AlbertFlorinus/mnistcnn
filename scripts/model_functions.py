@@ -78,7 +78,7 @@ class Run():
 		orig_img = cv2.imread(filename, 0)
 		result = {"filename": filename, "orig_img": orig_img, "prediction_list": prediction_list, "prediction2_list": prediction2_list, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
 		if debug == True:
-			result["processing"] = [cv2.imread(filename, 0), dilated_gray, bg_gray, thr_gray, gray1, gray, gray2]
+			result["processing"] = [cv2.imread(filename, 0), dilated_gray, bg_gray, diff_gray,  thr_gray, gray1, gray, gray2]
 		return result
 
 	def weighted_average(self, result):
