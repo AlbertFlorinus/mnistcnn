@@ -52,6 +52,7 @@ class Run():
 		
 		# converting PIL image to numpy array
 		img = image.img_to_array(gray)
+
 		img2 = image.img_to_array(gray2)
 
 		# reshaping to 1 channel (its only 1 image), 112x112 shape, and 1 color channel (grayscale)
@@ -168,13 +169,19 @@ class Run():
 		plt.imshow(weighted_data["orig_img"])
 		plt.show()
 
-if __name__ == "__main__":	
-	location = os.path.abspath("")
-	model = load_model(location+"/ALnet-3.0.h5")
-	model = Run(model)
 
-	x = model.predict_folder(f"{location}/digits")
-	model.plot_simple(x["2IMG_0341.JPG"])
-	#plt.gray()
-	#plt.imshow( x["2IMG_0341.JPG"]["orig_img"] )
-	#plt.show()
+if __name__ == "__main__":
+	model = load_model("ALnet-3.0.h5")
+	MODEL = Run(model)
+	results = MODEL.predict_folder("digits")
+	
+	def wrong_predictions(results):
+		wrongs = {}
+		for i in results.keys():
+			if int(i[0]) != results[i]["classname"]:
+				wrongs[i]=results[i]
+		return wrongs
+	
+	x = wrong_predictions(results)
+	print(x.keys())
+            
