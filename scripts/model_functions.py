@@ -7,9 +7,13 @@ import cv2
 import sys
 # Creating class for the script
 class Run():
-	def __init__(self, model):
-		self.model = model
-		#self.model = load_model("ALnet-3.0.h5")
+	def __init__(self, model = None):
+		if "ipykernel" not in sys.modules:
+			self.model = load_model("ALnet-3.0.h5")
+		else:
+			#when run in notebook
+			assert model is not None
+			self.model = model
 		"""
 		print("\nStructure of Alnet-3.0")
 		for layer in self.model.layers:
@@ -171,8 +175,7 @@ class Run():
 
 
 if __name__ == "__main__":
-	model = load_model("ALnet-3.0.h5")
-	MODEL = Run(model)
+	MODEL = Run()
 	results = MODEL.predict_folder("digits")
 	
 	def wrong_predictions(results):
@@ -184,4 +187,3 @@ if __name__ == "__main__":
 	
 	x = wrong_predictions(results)
 	print(x.keys())
-            
