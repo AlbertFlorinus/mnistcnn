@@ -1,3 +1,4 @@
+from re import X
 from keras.preprocessing import image
 import numpy as np
 from keras.models import load_model
@@ -20,10 +21,12 @@ class Run():
 			print(layer.output_shape)
 		"""
 	
+	def __str__(self):
+		out = [layer.output_shape for layer in self.model.layers]
+		result = '\n'.join(''.join(str(x)) for x in out)
+		return "\nStructure of Alnet-3.0\n"+result
+
 	def predict_chosen(self, path_to_file, debug = False):
-		"""
-		
-		"""
 		filename = path_to_file
 		# reading image to grayscale
 		gray = cv2.imread(filename, 0)
@@ -176,6 +179,8 @@ class Run():
 
 if __name__ == "__main__":
 	MODEL = Run()
+	print(MODEL)
+	"""
 	results = MODEL.predict_folder("digits")
 	
 	def wrong_predictions(results):
@@ -187,3 +192,4 @@ if __name__ == "__main__":
 	
 	x = wrong_predictions(results)
 	print(x.keys())
+	"""
