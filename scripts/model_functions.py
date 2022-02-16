@@ -15,11 +15,6 @@ class Run():
 			#when run in notebook
 			assert model is not None
 			self.model = model
-		"""
-		print("\nStructure of Alnet-3.0")
-		for layer in self.model.layers:
-			print(layer.output_shape)
-		"""
 	
 	def __str__(self):
 		out = [layer.output_shape for layer in self.model.layers]
