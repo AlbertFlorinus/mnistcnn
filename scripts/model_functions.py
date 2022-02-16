@@ -1,3 +1,4 @@
+from re import X
 from keras.preprocessing import image
 import numpy as np
 from keras.models import load_model
@@ -7,19 +8,20 @@ import cv2
 import sys
 # Creating class for the script
 class Run():
-	def __init__(self, model):
-		self.model = model
-		#self.model = load_model("ALnet-3.0.h5")
-		"""
-		print("\nStructure of Alnet-3.0")
-		for layer in self.model.layers:
-			print(layer.output_shape)
-		"""
+	def __init__(self, model = None):
+		if "ipykernel" not in sys.modules:
+			self.model = load_model("ALnet-3.0.h5")
+		else:
+			#when run in notebook
+			assert model is not None
+			self.model = model
 	
-	def predict_chosen(self, path_to_file):
-		"""
-		
-		"""
+	def __str__(self):
+		out = [layer.output_shape for layer in self.model.layers]
+		result = '\n'.join(''.join(str(x)) for x in out)
+		return "\nStructure of Alnet-3.0\n"+result
+
+	def predict_chosen(self, path_to_file, debug = False):
 		filename = path_to_file
 		# reading image to grayscale
 		gray = cv2.imread(filename, 0)
@@ -52,6 +54,7 @@ class Run():
 		
 		# converting PIL image to numpy array
 		img = image.img_to_array(gray)
+
 		img2 = image.img_to_array(gray2)
 
 		# reshaping to 1 channel (its only 1 image), 112x112 shape, and 1 color channel (grayscale)
@@ -77,8 +80,9 @@ class Run():
 		prediction2_list = self.model.predict(test_img2)
 		orig_img = cv2.imread(filename, 0)
 		result = {"filename": filename, "orig_img": orig_img, "prediction_list": prediction_list, "prediction2_list": prediction2_list, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
+		if debug == True:
+			result["processing"] = [cv2.imread(filename, 0), dilated_gray, bg_gray, diff_gray,  thr_gray, gray1, gray, gray2]
 		return result
-		#return {"prediction_list": prediction_list, "prediction2_list": prediction2_list, "test_img": test_img, "test_img2": test_img2}
 
 	def weighted_average(self, result):
 		prediction_list = result["prediction_list"]
@@ -111,7 +115,6 @@ class Run():
 		result["adaptive_thresh_acc"] = k
 		result["thresh_acc"] = j
 		return result
-		#return {"classname": classname, "adaptive_thresh_acc": k, "thresh_acc": j, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
 
 	def predict_folder(self, pather, debug=False):
 		"""
@@ -169,13 +172,19 @@ class Run():
 		plt.show()
 
 
-if __name__ == "__main__":	
-	location = os.path.abspath("")
-	model = load_model(location+"/ALnet-3.0.h5")
-	model = Run(model)
-
-	x = model.predict_folder(f"{location}/digits")
-	model.plot_simple(x["2IMG_0341.JPG"])
-	#plt.gray()
-	#plt.imshow( x["2IMG_0341.JPG"]["orig_img"] )
-	#plt.show()
+if __name__ == "__main__":
+	MODEL = Run()
+	print(MODEL)
+	"""
+	results = MODEL.predict_folder("digits")
+	
+	def wrong_predictions(results):
+		wrongs = {}
+		for i in results.keys():
+			if int(i[0]) != results[i]["classname"]:
+				wrongs[i]=results[i]
+		return wrongs
+	
+	x = wrong_predictions(results)
+	print(x.keys())
+	"""
