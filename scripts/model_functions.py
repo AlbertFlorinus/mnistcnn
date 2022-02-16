@@ -16,7 +16,7 @@ class Run():
 			print(layer.output_shape)
 		"""
 	
-	def predict_chosen(self, path_to_file):
+	def predict_chosen(self, path_to_file, debug = False):
 		"""
 		
 		"""
@@ -77,8 +77,9 @@ class Run():
 		prediction2_list = self.model.predict(test_img2)
 		orig_img = cv2.imread(filename, 0)
 		result = {"filename": filename, "orig_img": orig_img, "prediction_list": prediction_list, "prediction2_list": prediction2_list, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
+		if debug == True:
+			result["processing"] = [cv2.imread(filename, 0), dilated_gray, bg_gray, thr_gray, gray1, gray, gray2]
 		return result
-		#return {"prediction_list": prediction_list, "prediction2_list": prediction2_list, "test_img": test_img, "test_img2": test_img2}
 
 	def weighted_average(self, result):
 		prediction_list = result["prediction_list"]
@@ -111,7 +112,6 @@ class Run():
 		result["adaptive_thresh_acc"] = k
 		result["thresh_acc"] = j
 		return result
-		#return {"classname": classname, "adaptive_thresh_acc": k, "thresh_acc": j, "adaptive_thresh_img": test_img, "thresh_img": test_img2}
 
 	def predict_folder(self, pather, debug=False):
 		"""
@@ -167,7 +167,6 @@ class Run():
 		fig.add_subplot(rows, columns, 3).set_title("Orig img")
 		plt.imshow(weighted_data["orig_img"])
 		plt.show()
-
 
 if __name__ == "__main__":	
 	location = os.path.abspath("")
