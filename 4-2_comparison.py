@@ -137,7 +137,7 @@ if __name__ == "__main__":
     """
     model3 = tf.keras.models.load_model("ALnet-3.0.h5") #112x112 inputs
     model4 = tf.keras.models.load_model("ALnet-4.0.h5") #28x28 inputs
-    resizer_model = tf.keras.models.load_model("downscaling_autoencoder.h5") 
+    resizer_model = tf.keras.models.load_model("downscaling_autoencoder_2.h5") 
     count = 0
     for filename in os.listdir("digits"):
 
