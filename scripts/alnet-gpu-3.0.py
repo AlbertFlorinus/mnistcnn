@@ -2,13 +2,7 @@ import numpy as np
 import scipy
 import tensorflow as tf
 import cv2
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-# gathering the mnist-dataset, train is used for training,
-# test is used to predict images previously unseen,
-# we do this to ensure overfitting has not occurred,
-# y are labels to X which are the images
 
 (X_traine, Y_train), (X_teste, Y_test) = tf.keras.datasets.mnist.load_data()
 
@@ -51,33 +45,33 @@ Y_test = tf.keras.utils.to_categorical(Y_test, number_of_classes)
 def tensorflow_setup():
     input_img = tf.keras.Input(shape=(112,112,1))
 
-    x = Conv2D(16, (20,20), strides = 2, activation="relu", padding="same")(input_img)
-    x = Conv2D(16, (10,10), strides = 2, activation="relu", padding="same")(x)
+    x = tf.keras.layers.Conv2D(16, (20,20), strides = 2, activation="relu", padding="same")(input_img)
+    x = tf.keras.layers.Conv2D(16, (10,10), strides = 2, activation="relu", padding="same")(x)
 
-    x = Conv2D(32, (3,3), activation="relu")(x)
-    x = BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(32, (3,3), activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
 
-    x = Conv2D(32, (3,3), activation="relu")(x)
-    x = BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(32, (3,3), activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
 
     # adding conv layer with 5x5 filter and a stride of 2 instead of max pooling,
     # downsampling image but retaining import data for classification.
-    x = Conv2D(32, (5,5), strides=2, padding="same",activation="relu")(x)
-    x = BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(32, (5,5), strides=2, padding="same",activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
 
     # using dropout with a rate 0f 0.4, this randomly "drops",
     # 40% of the nodes to a output value of 0 each iteration, which helps prevent overfitting
-    x = Dropout(0.4)(x)
+    x = tf.keras.layers.Dropout(0.4)(x)
 
     # raise amount from 32 to 64
-    x = Conv2D(64, (3,3), activation="relu")(x)
-    x = BatchNormalization()(x)
-    x = Conv2D(64, (3,3), activation="relu")(x)
-    x = BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(64, (3,3), activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Conv2D(64, (3,3), activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
 
-    x = Conv2D(64, (5,5), strides=2, padding="same", activation="relu")(x)
-    x = BatchNormalization()(x)
-    x = Dropout(0.4)(x)
+    x = tf.keras.layers.Conv2D(64, (5,5), strides=2, padding="same", activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Dropout(0.4)(x)
 
     # flattening the input to a 1d array,
     # flattening the pixel data of 64 4x4 arrays
@@ -85,15 +79,15 @@ def tensorflow_setup():
     # not 1024 pixels of the original image but of the,
     # outputs from the convolutional neural network
     # this ends the spatial/convolutional part of the network
-    x = Flatten()(x)
+    x = tf.keras.layers.Flatten()(x)
 
     # adding a fully connected layer of 128 neurons
-    x = Dense(128, activation="relu")(x)
-    x = BatchNormalization()(x)
-    x = Dropout(0.4)(x)
+    x = tf.keras.layers.Dense(128, activation="relu")(x)
+    x = tf.keras.layers.BatchNormalization()(x)
+    x = tf.keras.layers.Dropout(0.4)(x)
 
     # Final layer of 10 neurons with a softmax activation,
-    output = Dense(number_of_classes, activation="softmax")(x)
+    output = tf.keras.layers.Dense(number_of_classes, activation="softmax")(x)
     model = tf.keras.Model(input_img, output)
     return model
 
@@ -120,59 +114,25 @@ if __name__ == "__main__":
 
     model = tensorflow_setup()
 
-    with tf.device('/gpu:0'):
+    if tf.config.list_physical_devices('GPU'):
+        #make sure you have cuda installed and are using tensorflow-gpu
+        with tf.device('/gpu:0'):
+            model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
+
+            history = model.fit(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
+                            validation_data=val_generator, callbacks=[annealer], verbose=1)
+
+        model.save("ALnet-gpu-3.0.h5")
+
+    else:
+        print("No GPU found, using CPU instead")    
         model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
-        # starting training
         history = model.fit(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
-                        validation_data=val_generator, callbacks=[annealer], verbose=1)
+                validation_data=val_generator, callbacks=[annealer], verbose=1)
 
-    model.save("ALnet-gpu-3.0.h5")
+        model.save("ALnet-cpu-3.0.h5")
 
     score = model.evaluate(x=X_test, y=Y_test, verbose=1)
-    print("Test loss: ", score[0])
-    print("Test accuracy: ", score[1])
-
-    # printing Alnet-3.0 structure 
-    for layer in model.layers:
-        print(layer.output_shape)
-
-if __name__ != "__main__":
-
-    # Number of images to iterate simultaneously before each weight update
-    batchsize = 32
-
-    X_val = X_test[9000:]
-    Y_val = Y_test[9000:]
-
-    X_test = X_test[:9000]
-    Y_test = Y_test[:9000]
-
-    # Augmentning training data for better generalisation,
-    # and prevent overfitting
-    gen = tf.keras.preprocessing.image.ImageDataGenerator(rotation_range=15, width_shift_range=0.1, height_shift_range=0.1, zoom_range=0.15)
-    train_generator = gen.flow(X_train, Y_train, batch_size=batchsize)
-    testing_generator = gen.flow(X_test, Y_test, batch_size=batchsize)
-
-    # Reducing learning rate to 95% of the last epoch,
-    # speeding up convergence by keeping weight updates smaller as the model,
-    # approaches convergence.
-    annealer = tf.keras.callbacks.LearningRateScheduler(lambda x: 1e-3 * 0.95 ** x)
-
-    # Log file for tracking information about the learning process and its metrics
-    csv_logger = tf.keras.callbacks.CSVLogger("training_test_4.0.log", append=True, separator=";")
-
-
-    model = tensorflow_setup()
-
-    with tf.device('/gpu:0'):
-        model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
-        # starting training
-        history = model.fit(train_generator,steps_per_epoch=X_train.shape[0]//batchsize, epochs=10, 
-                        validation_data=testing_generator, callbacks=[annealer, csv_logger], verbose=1)
-
-        model.save("ALnet-4.0.h5")
-    
-    score = model.evaluate(x=X_val, y=Y_val, verbose=1)
     print("Test loss: ", score[0])
     print("Test accuracy: ", score[1])
