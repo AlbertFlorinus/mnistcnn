@@ -53,9 +53,10 @@ class Run():
 		(_, gray2) = cv2.threshold(gray1, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 		
 		# converting PIL image to numpy array
-		img = image.img_to_array(gray)
-
-		img2 = image.img_to_array(gray2)
+		#img = image.img_to_array(gray)
+		img = gray
+		img2 = gray2
+		#img2 = image.img_to_array(gray2)
 
 		# reshaping to 1 channel (its only 1 image), 112x112 shape, and 1 color channel (grayscale)
 		test_img = img.reshape((1,112,112,1))
@@ -175,7 +176,7 @@ class Run():
 if __name__ == "__main__":
 	MODEL = Run()
 	print(MODEL)
-	"""
+	
 	results = MODEL.predict_folder("digits")
 	
 	def wrong_predictions(results):
@@ -187,4 +188,4 @@ if __name__ == "__main__":
 	
 	x = wrong_predictions(results)
 	print(x.keys())
-	"""
+	
