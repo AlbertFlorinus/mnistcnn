@@ -107,6 +107,50 @@ class Model_3_Utils():
 
 if __name__ == "__main__":
 	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
+	autoencoder = tf.keras.models.load_model("autoencoder.h5")
+	autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+	
+	#plot 3x10 images
+	fig, ax = plt.subplots(4, 30, figsize=(20, 10))
+	fig.subplots_adjust(hspace = .005, wspace=.005)
+
+	count = 0
+	for filename in os.listdir("digits"):
+		if filename.endswith(".DS_Store"):
+			continue
+		elif count < 30:
+			gray = cv2.imread("digits/" + filename, 0)
+			abs_thresh_img = runner.absolute_preprocess(gray)
+			adapt_thresh_img = runner.adaptive_preprocess(gray)
+			
+			abs_thresh_coded = abs_thresh_img.astype('float32') / 255
+			abs_thresh_coded = np.expand_dims(abs_thresh_coded, axis=0)
+			abs_thresh_coded = autoencoder.predict(abs_thresh_coded)[0]
+
+
+			ax[0, count].imshow(abs_thresh_img, cmap="gray")
+			ax[1, count].imshow(adapt_thresh_img, cmap="gray")
+			ax[2, count].imshow(gray, cmap="gray")
+			ax[3, count].imshow(abs_thresh_coded, cmap="gray")
+
+			count += 1
+	#hide x and y ticks
+	for i in range(4):
+		for j in range(30):
+			ax[i, j].set_xticks([])
+			ax[i, j].set_yticks([])
+
+	#title for each row
+	ax[0, 0].set_title("Absolute Thresholding", fontsize=20)
+	ax[1, 0].set_title("Adaptive Thresholding", fontsize=20)
+	ax[2, 0].set_title("Original Image", fontsize=20)
+	ax[3, 0].set_title("Autoencoder", fontsize=20)
+	plt.show()
+
+
+
+if __name__ != "__main__":
+	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
 	
 	gray = cv2.imread("digits/6IMG_0664.jpg", 0)
 

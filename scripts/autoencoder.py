@@ -67,32 +67,7 @@ def data_prep():
 
     return X_train, X_traina, X_test, X_testa
 
-
-def tensorf2low_setup():
-    input_img = tf.keras.Input(shape=(112, 112, 1))
-    x = tf.keras.layers.Conv2D(16, (20, 20), activation='relu', padding='same')(input_img)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = tf.keras.layers.MaxPooling2D((2, 2), padding='same')(x)
-    x = tf.keras.layers.Conv2D(16, (10, 10), activation='relu', padding='same')(x)
-
-    x = tf.keras.layers.MaxPooling2D((2, 2), padding='same')(x)
-    x = tf.keras.layers.Conv2D(32, (5, 5), activation='relu', padding='same')(x)
-    x = tf.keras.layers.BatchNormalization()(x)
-    x = tf.keras.layers.Dropout(0.4)(x)
-    encoded = tf.keras.layers.MaxPooling2D((2, 2), padding='same')(x)
-
-    y = tf.keras.layers.Conv2DTranspose(32, (5, 5), activation='relu', padding='same')(encoded)
-    y = tf.keras.layers.BatchNormalization()(y)
-    y = tf.keras.layers.UpSampling2D((2, 2))(y)
-    y = tf.keras.layers.Conv2DTranspose(16, (10, 10), activation='relu', padding='same')(y)
-    y = tf.keras.layers.UpSampling2D((2, 2))(y)
-    y = tf.keras.layers.Conv2DTranspose(16, (20, 20), activation='relu', padding='same')(y)
-    decoded = tf.keras.layers.Conv2D(1, (3, 3), activation="sigmoid", padding="same")(y)
-
-    model = tf.keras.Model(input_img, decoded)
-    return model
-
-
+@tf.function(jit_compile=True)
 def tensorflow_setup():
     input_img = tf.keras.Input(shape=(112, 112, 1))
 
@@ -121,11 +96,9 @@ def tensorflow_setup():
     model = tf.keras.Model(input_img, decoded)
     return model
 
-
-if __name__ == "__main__":
-    
+@tf.function(jit_compile=True)
+def train_model():
     X_train_thin, X_train, X_test_thin, X_test = data_prep()
-
     with tf.device('/gpu:0'):
         autoencoder = tensorflow_setup()
         autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
@@ -137,6 +110,15 @@ if __name__ == "__main__":
                         verbose=1)
 
     tf.keras.models.save_model(autoencoder, 'autoencoder.h5')
+
+    return autoencoder, history, X_train_thin, X_train, X_test_thin, X_test
+
+
+
+
+if __name__ == "__main__":
+    
+    autoencoder, history, X_train_thin, X_train, X_test_thin, X_test = train_model()
     decoded_imgs = autoencoder.predict(X_test_thin)
 
     n = 10

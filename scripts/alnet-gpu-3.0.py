@@ -91,7 +91,12 @@ def tensorflow_setup():
     model = tf.keras.Model(input_img, output)
     return model
 
-if __name__ == "__main__":
+
+model = tensorflow_setup()
+
+model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
+print(model.summary())
+if __name__ != "__main__":
     # Number of images to iterate simultaneously before each weight update
     batchsize = 64
 
