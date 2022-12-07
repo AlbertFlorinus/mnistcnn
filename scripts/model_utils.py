@@ -108,10 +108,45 @@ class Model_3_Utils():
 if __name__ == "__main__":
 	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
 	
-	gray = cv2.imread("digits/2IMG_0623.jpg", 0)
+	gray = cv2.imread("digits/6IMG_0664.jpg", 0)
 
 	abs_thresh_img = runner.absolute_preprocess(gray)
 
 	adapt_thresh_img = runner.adaptive_preprocess(gray)
+
+	abs_inp = runner.format_to_input_layer(abs_thresh_img)
+
+	adapt_inp = runner.format_to_input_layer(adapt_thresh_img)
+
+	autoencoder = tf.keras.models.load_model("autoencoder.h5")
+
+	autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+
+	reduce_imgabs = autoencoder.predict(abs_inp)[0]
+
+	reduce_imgabs = cv2.resize(reduce_imgabs, (28, 28), interpolation=cv2.INTER_AREA)
+
+	reduce_imgadapt = autoencoder.predict(adapt_inp)[0]
+
+	reduce_imgadapt = cv2.resize(reduce_imgadapt, (28, 28), interpolation=cv2.INTER_AREA)
+
+	classifier = tf.keras.models.load_model("ALnet-4.0.h5")
+
+	#classifier.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+	#print(reduce_imgabs.shape)
+	#print("class is : ",classifier.predict(runner.format_to_input_layer(reduce_imgabs)))
+	print(classifier.predict(reduce_imgabs.reshape(1, 28, 28, 1)))
+	plt.subplot(141)
+	plt.imshow(abs_thresh_img, cmap='gray')
+	plt.subplot(142)
+	plt.imshow(reduce_imgabs, cmap='gray')
+	plt.subplot(143)
+	plt.imshow(adapt_thresh_img, cmap='gray')
+	plt.subplot(144)
+	plt.imshow(reduce_imgadapt, cmap='gray')
+	plt.show()
+	#autoencoder.fit(abs_inp, abs_inp, epochs=10, batch_size=32)
+
+	#adapt_thresh_img = runner.adaptive_preprocess(gray)
 
 
