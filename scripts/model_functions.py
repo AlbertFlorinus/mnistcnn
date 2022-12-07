@@ -1,5 +1,4 @@
 from re import X
-from keras.preprocessing import image
 import numpy as np
 from keras.models import load_model
 import matplotlib.pyplot as plt
@@ -53,9 +52,9 @@ class Run():
 		(_, gray2) = cv2.threshold(gray1, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 		
 		# converting PIL image to numpy array
-		img = image.img_to_array(gray)
+		img = gray
 
-		img2 = image.img_to_array(gray2)
+		img2 = gray2
 
 		# reshaping to 1 channel (its only 1 image), 112x112 shape, and 1 color channel (grayscale)
 		test_img = img.reshape((1,112,112,1))
