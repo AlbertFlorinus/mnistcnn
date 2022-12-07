@@ -1,9 +1,11 @@
+import os 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
 import tensorflow as tf
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-import os 
-#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
 
 def data_prep():
     #previously the mnist classifier was trained on 112x112 images,
@@ -114,12 +116,17 @@ def train_model():
     return autoencoder, history, X_train_thin, X_train, X_test_thin, X_test
 
 
-
-
 if __name__ == "__main__":
-    
-    autoencoder, history, X_train_thin, X_train, X_test_thin, X_test = train_model()
-    decoded_imgs = autoencoder.predict(X_test_thin)
+    print("hi")
+    X_train_thin, X_train, X_test_thin, X_test = data_prep()
+    print("hi")
+    autoencoder = tf.keras.models.load_model('autoencoder.h5')
+    print("hi")
+    autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+    #autoencoder, history, X_train_thin, X_train, X_test_thin, X_test = train_model()
+    print("hi")
+    print(X_test_thin.shape, X_test_thin[:20,:,:,:].shape)
+    decoded_imgs = autoencoder.predict(X_test_thin[:20,:,:,:])
 
     n = 10
     plt.figure(figsize=(20, 4))
