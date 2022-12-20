@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 import tensorflow_datasets as tfds
+import matplotlib.pyplot as plt
 import numpy as np
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -26,5 +27,10 @@ tf.config.run_functions_eagerly(True)
 
 for example in train_ds.take(1):
     image, label = example["image"], example["label"]
+    im2 = image.numpy()
+    # display im2
+    plt.imshow(im2)
+    plt.show()
+    print(im2)
     print("Image shape: ", image.numpy().shape)
     print("Label: ", label.numpy())
