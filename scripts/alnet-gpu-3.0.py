@@ -15,12 +15,14 @@ X_test = np.empty((10000,112,112))
 for i in range(60000):
     imgs = X_traine[i]
     enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
-    X_train[i,:,:] = enlargeder
+    binarized = cv2.threshold(enlargeder, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    X_train[i,:,:] = binarized
 
 for i in range(10000):
     imgs = X_teste[i]
     enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
-    X_test[i,:,:] = enlargeder
+    binarized = cv2.threshold(enlargeder, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    X_test[i,:,:] = binarized
     
 # reshaping for keras compatibility
 X_train = np.expand_dims(X_train, axis=3)
