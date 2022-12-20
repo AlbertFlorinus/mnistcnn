@@ -1,5 +1,5 @@
 import os 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
 import tensorflow as tf
 import numpy as np
@@ -69,7 +69,7 @@ def data_prep():
 
     return X_train, X_traina, X_test, X_testa
 
-@tf.function(jit_compile=True)
+#@tf.function(jit_compile=True)
 def tensorflow_setup():
     input_img = tf.keras.Input(shape=(112, 112, 1))
 
@@ -98,17 +98,19 @@ def tensorflow_setup():
     model = tf.keras.Model(input_img, decoded)
     return model
 
-@tf.function(jit_compile=True)
+#@tf.function(jit_compile=True)
 def train_model():
     X_train_thin, X_train, X_test_thin, X_test = data_prep()
+    tb = tf.keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
     with tf.device('/gpu:0'):
         autoencoder = tensorflow_setup()
         autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
         history = autoencoder.fit(X_train_thin, X_train,
-                        epochs=5,
+                        epochs=2,
                         batch_size=32,
                         shuffle=True,
                         validation_data=(X_test_thin, X_test),
+                        callbacks=[tb],
                         verbose=1)
 
     tf.keras.models.save_model(autoencoder, 'autoencoder.h5')
@@ -117,15 +119,23 @@ def train_model():
 
 
 if __name__ == "__main__":
-    print("hi")
     X_train_thin, X_train, X_test_thin, X_test = data_prep()
-    print("hi")
-    autoencoder = tf.keras.models.load_model('autoencoder.h5')
-    print("hi")
-    autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+    tb = tf.keras.callbacks.TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
+    autoencoder = tensorflow_setup()
+    with tf.device('/gpu:0'):
+        autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+        history = autoencoder.fit(X_train_thin, X_train,
+                        epochs=2,
+                        batch_size=32,
+                        shuffle=True,
+                        validation_data=(X_test_thin, X_test),
+                        callbacks=[tb],
+                        verbose=1)
+
+    tf.keras.models.save_model(autoencoder, 'autoencoder.h5')
+
     #autoencoder, history, X_train_thin, X_train, X_test_thin, X_test = train_model()
-    print("hi")
-    print(X_test_thin.shape, X_test_thin[:20,:,:,:].shape)
+    #print(X_test_thin.shape, X_test_thin[:20,:,:,:].shape)
     decoded_imgs = autoencoder.predict(X_test_thin[:20,:,:,:])
 
     n = 10
