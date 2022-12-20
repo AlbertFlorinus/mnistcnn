@@ -15,13 +15,13 @@ X_test = np.empty((10000,112,112))
 for i in range(60000):
     imgs = X_traine[i]
     enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
-    binarized = cv2.threshold(enlargeder, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    _, binarized = cv2.threshold(enlargeder, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     X_train[i,:,:] = binarized
 
 for i in range(10000):
     imgs = X_teste[i]
     enlargeder = cv2.resize(imgs, (112, 112), interpolation=cv2.INTER_AREA)
-    binarized = cv2.threshold(enlargeder, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    _, binarized = cv2.threshold(enlargeder, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     X_test[i,:,:] = binarized
     
 # reshaping for keras compatibility
@@ -98,7 +98,7 @@ model = tensorflow_setup()
 
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 print(model.summary())
-if __name__ != "__main__":
+if __name__ == "__main__":
     # Number of images to iterate simultaneously before each weight update
     batchsize = 64
 

@@ -104,25 +104,104 @@ class Model_3_Utils():
 		gray = self.format_to_input_layer(gray)
 		return self.model.predict(gray)
 
-orig = cv2.imread("digits/3IMG_0615.jpg", 0)
-output = cv2.resize(255-orig, (112, 112), interpolation=cv2.INTER_AREA)
-plt.imshow(output, cmap="gray")
-plt.show()
 
+if __name__ == "__main__":
+	correct = 0
+	wrong = 0
+	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
+	autoencoder_eroder = tf.keras.models.load_model("downscaling_autoencoder.h5")
+	autoencoder_scaler = tf.keras.models.load_model("downscaling_autoencoder_2.h5")
+	
 
+	model = tf.keras.models.load_model("ALnet-4.0.h5")
+	model.compile(optimizer='adam', loss='categorical_crossentropy')
+	autoencoder_eroder.compile(optimizer='adam', loss='binary_crossentropy')
+	autoencoder_scaler.compile(optimizer='adam', loss='binary_crossentropy')
 
+	for filename in os.listdir("digits"):
+		if filename.endswith(".DS_Store"):
+			continue
+		gray = cv2.imread("digits/" + filename, 0)
+		img = runner.adaptive_preprocess(gray)
+		#img = runner.absolute_preprocess(gray)
+		img = img.astype("float32")/255
+		img = np.expand_dims(img, axis=0)
+		#img = autoencoder_scaler.predict(img, verbose=0)[0]
+		img = autoencoder_eroder.predict(img, verbose = 0)[0]
+		img = np.expand_dims(img, axis=0)
+		res = model.predict(img, verbose=0)[0]
+		prediction = np.argmax(res)
+		if int(prediction) == int(filename[0]):
+			correct += 1
+		else:
+			wrong += 1
+	print(correct/(wrong+correct))
 
 if __name__ != "__main__":
 	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
-	autoencoder = tf.keras.models.load_model("autoencoder.h5")
-	autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+	autoencoder_eroder = tf.keras.models.load_model("downscaling_autoencoder.h5")
+	autoencoder_scaler = tf.keras.models.load_model("downscaling_autoencoder_2.h5")
 	
+	autoencoder_eroder.compile(optimizer='adam', loss='binary_crossentropy')
+	autoencoder_scaler.compile(optimizer='adam', loss='binary_crossentropy')
+
 	#plot 3x10 images
-	fig, ax = plt.subplots(3, 10, figsize=(12, 4))
+	fig, ax = plt.subplots(5, 10, figsize=(12, 4))
 	#fig.subplots_adjust(hspace = .00005, wspace=.005)
 	#plt.tight_layout()
 	count = 0
-	for filename in os.listdir("digits"):
+	for filename in os.listdir("digits")[80:]:
+		if filename.endswith(".DS_Store"):
+			continue
+		elif count < 10:
+			gray = cv2.imread("digits/" + filename, 0)
+			abs_thresh_img = runner.absolute_preprocess(gray)
+			adapt_thresh_img = runner.adaptive_preprocess(gray)
+			
+			abs_thresh_coded = abs_thresh_img.astype('float32') / 255
+			abs_thresh_coded = np.expand_dims(abs_thresh_coded, axis=0)
+			abs_thresh_coded_eroder = autoencoder_eroder.predict(abs_thresh_coded)[0]
+			abs_thresh_coded_scaler = autoencoder_scaler.predict(abs_thresh_coded)[0]
+
+			adapt_thresh_coded = adapt_thresh_img.astype('float32') / 255
+			adapt_thresh_coded = np.expand_dims(adapt_thresh_coded, axis=0)
+			adapt_thresh_coded_eroder = autoencoder_eroder.predict(adapt_thresh_coded)[0]
+			adapt_thresh_coded_scaler = autoencoder_scaler.predict(adapt_thresh_coded)[0]	
+
+			ax[0, count].imshow(abs_thresh_coded_eroder, cmap="gray")
+			ax[1, count].imshow(abs_thresh_coded_scaler, cmap="gray")
+
+			ax[2, count].imshow(adapt_thresh_coded_eroder, cmap="gray")
+			ax[3, count].imshow(adapt_thresh_coded_scaler, cmap="gray")
+			ax[4, count].imshow(gray, cmap="gray")
+
+			count += 1
+
+	#hide x and y ticks
+	for i in range(5):
+		for j in range(10):
+			ax[i, j].set_xticks([])
+			ax[i, j].set_yticks([])
+
+	#title for each row
+	ax[0, 0].set_title("abs+eroder", fontsize=15)
+	ax[1, 0].set_title("Abs+scaler", fontsize=15)
+	ax[2, 0].set_title("Adapt+eroder", fontsize=15)
+	ax[3, 0].set_title("Adapt+scaler", fontsize=15)
+	ax[4, 0].set_title("Original Image", fontsize=15)
+	plt.show()
+
+if __name__ != "__main__":
+	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
+	autoencoder = tf.keras.models.load_model("downscaling_autoencoder_2.h5")
+	autoencoder.compile(optimizer='adam', loss='binary_crossentropy')
+	
+	#plot 3x10 images
+	fig, ax = plt.subplots(5, 10, figsize=(12, 4))
+	#fig.subplots_adjust(hspace = .00005, wspace=.005)
+	#plt.tight_layout()
+	count = 0
+	for filename in os.listdir("digits")[50:]:
 		if filename.endswith(".DS_Store"):
 			continue
 		elif count < 10:
@@ -134,14 +213,21 @@ if __name__ != "__main__":
 			abs_thresh_coded = np.expand_dims(abs_thresh_coded, axis=0)
 			abs_thresh_coded = autoencoder.predict(abs_thresh_coded)[0]
 
+			adapt_thresh_coded = adapt_thresh_img.astype('float32') / 255
+			adapt_thresh_coded = np.expand_dims(adapt_thresh_coded, axis=0)
+			adapt_thresh_coded = autoencoder.predict(adapt_thresh_coded)[0]
+
 			ax[0, count].imshow(abs_thresh_img, cmap="gray")
 			ax[1, count].imshow(abs_thresh_coded, cmap="gray")
-			ax[2, count].imshow(gray, cmap="gray")
+
+			ax[2, count].imshow(adapt_thresh_img, cmap="gray")
+			ax[3, count].imshow(adapt_thresh_coded, cmap="gray")
+			ax[4, count].imshow(gray, cmap="gray")
 
 			count += 1
 
 	#hide x and y ticks
-	for i in range(3):
+	for i in range(5):
 		for j in range(10):
 			ax[i, j].set_xticks([])
 			ax[i, j].set_yticks([])
@@ -149,7 +235,9 @@ if __name__ != "__main__":
 	#title for each row
 	ax[0, 0].set_title("Absolute Thresholding", fontsize=15)
 	ax[1, 0].set_title("Abs Thresholding + Autoencoder", fontsize=15)
-	ax[2, 0].set_title("Original Image", fontsize=15)
+	ax[2, 0].set_title("Adaptive Thresholding", fontsize=15)
+	ax[3, 0].set_title("Adapt Thresholding + Autoencoder", fontsize=15)
+	ax[4, 0].set_title("Original Image", fontsize=15)
 	plt.show()
 
 
