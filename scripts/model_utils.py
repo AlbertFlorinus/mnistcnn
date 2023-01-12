@@ -106,6 +106,34 @@ class Model_3_Utils():
 
 
 if __name__ == "__main__":
+	"""
+	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
+
+	#filling absolute preprocessed directory
+
+	for dir in os.listdir("data/digits_112_absolute"):
+		if dir == ".DS_Store":
+			continue
+		for file in os.listdir("data/digits_tensordata/"+dir):
+			gray = cv2.imread("data/digits_tensordata/"+dir+"/"+file, cv2.IMREAD_GRAYSCALE)
+			gray = runner.absolute_preprocess(gray)
+			cv2.imwrite("data/digits_112_absolute/"+dir+"/"+file, gray)
+	
+	"""
+
+	"""
+	#filling absolute preprocessed directory
+	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
+	for dir in os.listdir("data/digits_112_adaptive"):
+		if dir == ".DS_Store":
+			continue
+		for file in os.listdir("data/digits_tensordata/"+dir):
+			gray = cv2.imread("data/digits_tensordata/"+dir+"/"+file, cv2.IMREAD_GRAYSCALE)
+			gray = runner.adaptive_preprocess(gray)
+			cv2.imwrite("data/digits_112_adaptive/"+dir+"/"+file, gray)
+	"""
+
+if __name__ == "__main__":
 	correct = 0
 	wrong = 0
 	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
