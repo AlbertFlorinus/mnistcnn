@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import sys
 
-def build_dataset(dirPath: str, IMG_SIZE = (112,112), BATCH_SIZE = 1):
+def build_dataset(dirPath: str, IMG_SIZE = (28,28), BATCH_SIZE = 1):
     def gray_transform(inputs):
         x = tf.image.rgb_to_grayscale(inputs)
         x = tf.squeeze(x)
@@ -24,18 +24,47 @@ def build_dataset(dirPath: str, IMG_SIZE = (112,112), BATCH_SIZE = 1):
     return test_ds
 
 
+
+def comparison():
+    
+
+
+"""
 dirPathx = "data/digits_112_absolute"
 dirPathy = "data/digits_112_adaptive"
 dirPathz = "data/digits_tensordata"
+"""
+dirPathX = "data/digits_28_decoded_eroder_adaptive"
+dirPathK = "data/digits_28_decoded_scaler_adaptive"
+"""
 test_ds = build_dataset(dirPathx)
 test_ds2 = build_dataset(dirPathy)
 test_ds3 = build_dataset(dirPathz)
-model = tf.keras.models.load_model("ALnet-3.0.h5")
+"""
+test_ds4 = build_dataset(dirPathX)
+test_ds5 = build_dataset(dirPathK)
+#model = tf.keras.models.load_model("ALnet-gpu-3.0.h5")
+#model = tf.keras.models.load_model("ALnet-3.0.h5")
+model = tf.keras.models.load_model("ALnet-4.0.h5")
 
+
+"""
+ALnet-gpu was trained on binarized training data
+ALnet-3.0 was NOT training on binarized training data
+
+The preprocessing uses thresholding however, which leads to binarized test images
+"""
 #evaluate the model
+"""
 loss, acc = model.evaluate(test_ds)
 print("Restored model, accuracy: {:5.2f}%".format(100*acc))
 loss, acc = model.evaluate(test_ds2)
 print("Restored model, accuracy: {:5.2f}%".format(100*acc))
 loss, acc = model.evaluate(test_ds3)
+print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+loss, acc = model.evaluate(test_ds4)
+"""
+loss, acc = model.evaluate(test_ds4)
+print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+loss, acc = model.evaluate(test_ds5)
 print("Restored model, accuracy: {:5.2f}%".format(100*acc))

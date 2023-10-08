@@ -105,7 +105,7 @@ class Model_3_Utils():
 		return self.model.predict(gray)
 
 
-if __name__ == "__main__":
+if __name__ != "__main__":
 	"""
 	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
 
@@ -134,6 +134,32 @@ if __name__ == "__main__":
 	"""
 
 if __name__ == "__main__":
+	correct = 0
+	wrong = 0
+	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
+	autoencoder_eroder = tf.keras.models.load_model("downscaling_autoencoder.h5")
+	autoencoder_scaler = tf.keras.models.load_model("downscaling_autoencoder_2.h5")
+	autoencoder_eroder.compile(optimizer='adam', loss='binary_crossentropy')
+	autoencoder_scaler.compile(optimizer='adam', loss='binary_crossentropy')
+
+	for dire in os.listdir("data/digits_tensordata"):
+		if dire.endswith(".DS_Store"):
+			continue
+		for digit in os.listdir("data/digits_tensordata/"+dire):
+			if digit.endswith(".DS_Store"):
+				continue		
+			gray = cv2.imread("data/digits_tensordata/" + dire+"/"+digit, 0)
+			img = runner.adaptive_preprocess(gray)
+			#img = runner.absolute_preprocess(gray)
+			img = img.astype("float32")/255
+			img = np.expand_dims(img, axis=0)
+			#img = autoencoder_scaler.predict(img, verbose=0)[0]
+			img = autoencoder_scaler.predict(img, verbose = 0)[0]
+			cv2.imwrite("data/digits_28_decoded_scaler_adaptive/"+dire+"/"+digit, img*255)
+			#img = np.expand_dims(img, axis=0)
+
+
+if __name__ != "__main__":
 	correct = 0
 	wrong = 0
 	runner = Model_3_Utils("Alnet-gpu-3.0.h5")
